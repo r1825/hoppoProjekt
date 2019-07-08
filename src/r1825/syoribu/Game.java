@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Game {
 
@@ -20,11 +21,15 @@ public class Game {
     ImageView self = new ImageView();
     ImageView background = new ImageView();
 
-    Image imageTama = new Image("r1825/syoribu/img/_i_icon_13029_icon_130290_48.png");
+    Image imageTamaSelf = new Image("r1825/syoribu/img/_i_icon_13029_icon_130290_48.png");
+    Image imageEnemy = new Image("r1825/syoribu/img/_i_icon_10777_icon_107770_64.png");
+    Image imageTamaEnemy = new Image("r1825/syoribu/img/_i_icon_15400_icon_154000_48.png");
 
     List<ImageObject> listMyTama = new ArrayList<>();
+    List<Enemy> listEnemy = new ArrayList<>();
 
-    int timeCount = 0;
+    int selfTamaCoolTCnt = 0;
+    int enemyPopupTCnt = 0;
 
     public void begin ( Stage stage ) {
 
@@ -51,13 +56,52 @@ public class Game {
 
             @Override
             public void handle(long now) {
-                if ( timeCount > 0 ) timeCount--;
-                var it = listMyTama.iterator();
-                while ( it.hasNext() ) {
-                    var i = it.next();
+
+                //新しい敵の出現
+                if ( enemyPopupTCnt <= 0 ) {
+                    int yPos = -50;
+                    int xPos = new Random().nextInt(1900);
+                    listEnemy.add(new Enemy(imageEnemy, root, xPos, yPos, imageTamaEnemy));
+                    enemyPopupTCnt = 30;
+                }
+                else {
+                    enemyPopupTCnt--;
+                }
+
+                // 自機の弾のクールダウンカウントを減らす
+                if ( selfTamaCoolTCnt > 0 ) selfTamaCoolTCnt--;
+                // 自機の弾の移動
+                var iteratorMyTama = listMyTama.iterator();
+                while ( iteratorMyTama.hasNext() ) {
+                    var i = iteratorMyTama.next();
                     i.setY(i.getY()-5);
                     if ( i.getY() <= -50 ) {
-                        it.remove();
+                        iteratorMyTama.remove();
+                    }
+                }
+
+                // 敵の移動
+                for ( var i : listEnemy ) {
+                    i.setY(i.getY()+1);
+                }
+
+                // 衝突判定
+                var iteratorEnemy = listEnemy.iterator();
+                while ( iteratorEnemy.hasNext() ) {
+                    var i = iteratorEnemy.next();
+                    if ( ImageObject.dist(i, self) <= 32 ) {
+                        System.exit(0);
+                    }
+                    iteratorMyTama = listMyTama.iterator();
+                    while ( iteratorMyTama.hasNext() ) {
+                        var j = iteratorMyTama.next();
+                        if ( ImageObject.dist(i, j) <= 24 ) {
+                            i.setY(-70);
+                            j.setY(-70);
+                            iteratorEnemy.remove();
+                            iteratorMyTama.remove();
+                            break;
+                        }
                     }
                 }
             }
@@ -73,9 +117,9 @@ public class Game {
 
     private void keyPressed (KeyEvent keyEvent){
         if ( keyEvent.getCode() == KeyCode.SPACE ) {
-            if ( timeCount > 0 ) return;
-            listMyTama.add(new ImageObject(imageTama, root, self.getX() + 8, self.getY() - 32));
-            timeCount = 10;
+            if ( selfTamaCoolTCnt > 0 ) return;
+            listMyTama.add(new ImageObject(imageTamaSelf, root, self.getX() + 8, self.getY() - 32));
+            selfTamaCoolTCnt = 5;
         }
     }
 }

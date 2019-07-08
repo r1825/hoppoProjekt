@@ -36,4 +36,10 @@ public class ImageObject {
         double y = a.getY() - b.getY();
         return Math.sqrt(x*x+y*y);
     }
+
+    public static double dist ( ImageObject a, ImageView b ) {
+        double x = a.getX() - b.getX();
+        double y = a.getY() - b.getY();
+        return Math.sqrt(x*x+y*y);
+    }
 }
