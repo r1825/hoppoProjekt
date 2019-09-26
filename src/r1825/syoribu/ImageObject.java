@@ -6,28 +6,30 @@ import javafx.scene.layout.Pane;
 
 public class ImageObject {
 
+    protected Pane pane;
     ImageView imageView = new ImageView();
 
-    ImageObject (Image image, Pane pane, double x, double y ) {
+    public ImageObject (Image image, Pane pane, double x, double y ) {
         imageView.setImage(image);
         imageView.setX(x);
         imageView.setY(y);
         pane.getChildren().add(imageView);
+        this.pane = pane;
     }
 
-    double getX() {
+    public double getX() {
         return imageView.getX();
     }
 
-    double getY() {
+    public double getY() {
         return imageView.getY();
     }
 
-    void setX(double x) {
+    public void setX(double x) {
         imageView.setX(x);
     }
 
-    void setY(double y) {
+    public void setY(double y) {
         imageView.setY(y);
     }
 
@@ -35,11 +37,13 @@ public class ImageObject {
         double x = a.getX() - b.getX();
         double y = a.getY() - b.getY();
         return Math.sqrt(x*x+y*y);
+        //return Math.pow(x*x*x+y*y*y, 1.0/3.0);
     }
 
     public static double dist ( ImageObject a, ImageView b ) {
         double x = a.getX() - b.getX();
         double y = a.getY() - b.getY();
         return Math.sqrt(x*x+y*y);
+        //return Math.pow(x*x*x+y*y*y, 1.0/3.0);
     }
 }

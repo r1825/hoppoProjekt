@@ -5,11 +5,11 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-
+    public static Game game;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        Game game = new Game();
+        game = new Game();
         game.begin(primaryStage);
     }
 

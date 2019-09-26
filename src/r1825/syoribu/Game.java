@@ -9,6 +9,11 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import r1825.syoribu.entity.enemy.EntityEnemyBase;
+import r1825.syoribu.entity.enemy.EntityEnemyNormal;
+import r1825.syoribu.entity.tama.EntityTamaBase;
+import r1825.syoribu.entity.tama.EntityTamaEnemyNormal;
+import r1825.syoribu.entity.tama.EntityTamaSelf;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,11 +30,14 @@ public class Game {
     Image imageEnemy = new Image("r1825/syoribu/img/_i_icon_10777_icon_107770_64.png");
     Image imageTamaEnemy = new Image("r1825/syoribu/img/_i_icon_15400_icon_154000_48.png");
 
-    List<ImageObject> listMyTama = new ArrayList<>();
-    List<Enemy> listEnemy = new ArrayList<>();
+    List<EntityTamaBase> listMyTama = new ArrayList<>();
+    List<EntityEnemyBase> listEnemy = new ArrayList<>();
+    public List<EntityTamaBase> listEnemyTama = new ArrayList<>();
 
     int selfTamaCoolTCnt = 0;
     int enemyPopupTCnt = 0;
+
+    AnimationTimer animationTimer;
 
     public void begin ( Stage stage ) {
 
@@ -52,7 +60,7 @@ public class Game {
         scene.setOnMouseMoved(event -> mouseMoved(event));
         scene.setOnKeyPressed(event -> keyPressed(event));
 
-        AnimationTimer timer = new AnimationTimer() {
+        animationTimer = new AnimationTimer() {
 
             @Override
             public void handle(long now) {
@@ -61,7 +69,7 @@ public class Game {
                 if ( enemyPopupTCnt <= 0 ) {
                     int yPos = -50;
                     int xPos = new Random().nextInt(1900);
-                    listEnemy.add(new Enemy(imageEnemy, root, xPos, yPos, imageTamaEnemy));
+                    listEnemy.add(new EntityEnemyNormal(imageEnemy, root, xPos, yPos, imageTamaEnemy));
                     enemyPopupTCnt = 30;
                 }
                 else {
@@ -74,7 +82,7 @@ public class Game {
                 var iteratorMyTama = listMyTama.iterator();
                 while ( iteratorMyTama.hasNext() ) {
                     var i = iteratorMyTama.next();
-                    i.setY(i.getY()-5);
+                    i.update();
                     if ( i.getY() <= -50 ) {
                         iteratorMyTama.remove();
                     }
@@ -82,7 +90,17 @@ public class Game {
 
                 // 敵の移動
                 for ( var i : listEnemy ) {
-                    i.setY(i.getY()+1);
+                    i.update();
+                }
+
+                // 敵の弾の移動
+                var iteratorEnemyTama = listEnemyTama.iterator();
+                while ( iteratorEnemyTama.hasNext() ) {
+                    var i = iteratorEnemyTama.next();
+                    i.update();
+                    if ( i.getY() >= 1500 ) {
+                        iteratorEnemyTama.remove();
+                    }
                 }
 
                 // 衝突判定
@@ -90,6 +108,7 @@ public class Game {
                 while ( iteratorEnemy.hasNext() ) {
                     var i = iteratorEnemy.next();
                     if ( ImageObject.dist(i, self) <= 32 ) {
+                        animationTimer.stop();
                         System.exit(0);
                     }
                     iteratorMyTama = listMyTama.iterator();
@@ -104,10 +123,19 @@ public class Game {
                         }
                     }
                 }
+
+                iteratorEnemyTama = listEnemyTama.iterator();
+                while ( iteratorEnemyTama.hasNext() ) {
+                    var i = iteratorEnemyTama.next();
+                    if ( ImageObject.dist(i, self) <= 24 ) {
+                        animationTimer.stop();
+                        System.exit(0);
+                    }
+                }
             }
         };
 
-        timer.start();
+        animationTimer.start();
 
     }
     private void mouseMoved (MouseEvent mouseEvent) {
@@ -118,7 +146,7 @@ public class Game {
     private void keyPressed (KeyEvent keyEvent){
         if ( keyEvent.getCode() == KeyCode.SPACE ) {
             if ( selfTamaCoolTCnt > 0 ) return;
-            listMyTama.add(new ImageObject(imageTamaSelf, root, self.getX() + 8, self.getY() - 32));
+            listMyTama.add(new EntityTamaSelf(imageTamaSelf, root, self.getX() + 8, self.getY() - 32));
             selfTamaCoolTCnt = 5;
         }
     }
