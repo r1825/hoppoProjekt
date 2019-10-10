@@ -233,7 +233,7 @@ public class Game {
 
     private void mouseMoved (MouseEvent mouseEvent) {
         self.setY(mouseEvent.getY() - ( (int)self.getImage().getHeight() >> 1 ) );
-        if ( mouseEvent.getX() + (int)self.getImage().getWidth() > GAME_WIDTH ) {
+        if ( mouseEvent.getX() + ((int)self.getImage().getWidth() >> 1) > GAME_WIDTH ) {
             self.setX(GAME_WIDTH - self.getImage().getWidth() );
         }
         else {
