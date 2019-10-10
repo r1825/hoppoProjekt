@@ -8,6 +8,7 @@ public class ImageObject {
 
     protected Pane pane;
     ImageView imageView = new ImageView();
+    protected final int imgH, imgW;
 
     public ImageObject (Image image, Pane pane, double x, double y ) {
         imageView.setImage(image);
@@ -15,6 +16,16 @@ public class ImageObject {
         imageView.setY(y);
         pane.getChildren().add(imageView);
         this.pane = pane;
+        imgH = (int)image.getHeight();
+        imgW = (int)image.getWidth();
+    }
+
+    public boolean isOutside ( ) {
+        if ( this.getX() <= -this.imgW  ) return true;
+        if ( this.getX() >= Game.GAME_WIDTH - this.imgW ) return true;
+        if ( this.getY() <= -100  ) return true;
+        if ( this.getY() >= Game.HEIGHT + 256 ) return true;
+        return false;
     }
 
     public double getX() {
@@ -23,6 +34,14 @@ public class ImageObject {
 
     public double getY() {
         return imageView.getY();
+    }
+
+    public double getCentreX () {
+        return this.getX() + ( this.imgW >> 1 );
+    }
+
+    public double getCentreY () {
+        return this.getY() + ( this.imgH >> 1 );
     }
 
     public void setX(double x) {
@@ -34,16 +53,28 @@ public class ImageObject {
     }
 
     public static double dist ( ImageObject a, ImageObject b ) {
-        double x = a.getX() - b.getX();
-        double y = a.getY() - b.getY();
-        return Math.sqrt(x*x+y*y);
-        //return Math.pow(x*x*x+y*y*y, 1.0/3.0);
+        double x = Math.abs( a.getCentreX() - b.getCentreX() );
+        double y = Math.abs( a.getCentreY() - b.getCentreY() );
+        //return Math.sqrt(x*x+y*y);
+        return Math.pow(x*x*x+y*y*y, 1.0/3.0);
     }
 
     public static double dist ( ImageObject a, ImageView b ) {
-        double x = a.getX() - b.getX();
-        double y = a.getY() - b.getY();
+        double x = Math.abs( a.getCentreX() - ( b.getX() + ( (int)b.getImage().getWidth()  >> 1 ) ) );
+        double y = Math.abs( a.getCentreY() - ( b.getY() + ( (int)b.getImage().getHeight() >> 1 ) ) );
+        //return Math.sqrt(x*x+y*y);
+        return Math.pow(x*x*x+y*y*y, 1.0/3.0);
+    }
+
+    public static double dist2 ( ImageObject a, ImageObject b ) {
+        double x = Math.abs( a.getCentreX() - b.getCentreX() );
+        double y = Math.abs( a.getCentreY() - b.getCentreY() );
         return Math.sqrt(x*x+y*y);
-        //return Math.pow(x*x*x+y*y*y, 1.0/3.0);
+    }
+
+    public static double dist2 ( ImageObject a, ImageView b ) {
+        double x = Math.abs( a.getCentreX() - ( b.getX() + ( (int)b.getImage().getWidth()  >> 1 ) ) );
+        double y = Math.abs( a.getCentreY() - ( b.getY() + ( (int)b.getImage().getHeight() >> 1 ) ) );
+        return Math.sqrt(x*x+y*y);
     }
 }
