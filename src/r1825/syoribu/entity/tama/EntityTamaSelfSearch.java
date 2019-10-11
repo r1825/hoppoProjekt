@@ -20,7 +20,7 @@ public class EntityTamaSelfSearch extends EntityTamaBase {
         EntityEnemyBase entityEnemyBase = Main.game.listEnemy.get(0);
         double tmp = ImageObject.dist2(entityEnemyBase, this);
         for ( var i : Main.game.listEnemy ) {
-            if ( ImageObject.dist(i, Main.game.self) < tmp ) {
+            if ( ImageObject.dist(i, Main.game.player) < tmp ) {
                 tmp = ImageObject.dist2(i, this);
                 entityEnemyBase = i;
             }
@@ -34,6 +34,11 @@ public class EntityTamaSelfSearch extends EntityTamaBase {
         this.setY(this.getY()+move.getY());
         this.setX(this.getX()+move.getX());
         return false;
+    }
+
+    @Override
+    public int getDamage ( ) {
+        return 1;
     }
 }
 

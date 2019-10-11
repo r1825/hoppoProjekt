@@ -4,21 +4,23 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import r1825.syoribu.ImageObject;
 import r1825.syoribu.Vector2;
+import r1825.syoribu.entity.EntityLiving;
+import r1825.syoribu.entity.EntityMovable;
 
-public class EntityEnemyBase extends ImageObject {
+public class EntityEnemyBase extends EntityLiving {
 
     protected Image tama;
     protected int time;
-    protected Vector2 move;
+    private final int SCORE;
 
-    EntityEnemyBase (Image image, Pane pane, double x, double y, Image tama, Vector2 move ) {
-        super(image, pane, x, y);
+    EntityEnemyBase (Image image, Pane pane, double x, double y, Image tama, Vector2 move, int life, int score ) {
+        super(image, pane, x, y, move, life);
         this.tama = tama;
         time = 0;
-        this.move = move;
+        this.SCORE = score;
     }
 
-    public void update ( ) {
-
+    public int getScore ( ) {
+        return SCORE;
     }
 }

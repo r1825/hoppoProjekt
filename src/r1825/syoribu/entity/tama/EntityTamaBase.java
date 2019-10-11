@@ -4,17 +4,16 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import r1825.syoribu.ImageObject;
 import r1825.syoribu.Vector2;
+import r1825.syoribu.entity.EntityMovable;
 
-public class EntityTamaBase extends ImageObject {
-
-    protected Vector2 move;
+public class EntityTamaBase extends EntityMovable {
 
     public EntityTamaBase(Image image, Pane pane, double x, double y, Vector2 move ) {
-        super(image, pane, x, y);
+        super(image, pane, x, y, move);
         this.move = move;
     }
 
-    public boolean update ( ) {
-        return false;
+    public int getDamage ( ) {
+        return 0;
     }
 }

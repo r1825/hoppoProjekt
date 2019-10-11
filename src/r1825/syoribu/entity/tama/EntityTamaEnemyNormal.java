@@ -16,4 +16,9 @@ public class EntityTamaEnemyNormal extends EntityTamaBase {
         this.setX(this.getX()+move.getX());
         return false;
     }
+
+    @Override
+    public int getDamage ( ) {
+        return 1;
+    }
 }
