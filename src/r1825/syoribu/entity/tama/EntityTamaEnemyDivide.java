@@ -25,8 +25,7 @@ public class EntityTamaEnemyDivide extends EntityTamaBase {
             }
             return true;
         }
-        this.setY(this.getY()+move.getY());
-        this.setX(this.getX()+move.getX());
+        this.move(vectorMove);
         return false;
     }
 

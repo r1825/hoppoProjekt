@@ -15,8 +15,7 @@ public class EntityEnemyLaser extends EntityEnemyBase {
 
     @Override
     public boolean update ( ) {
-        this.setY(this.getY()+move.getY());
-        this.setX(this.getX()+move.getX());
+        this.move(vectorMove);
         Main.game.listEnemyTamaAdd.add(new EntityTamaEnemyNormal(this.tama, this.pane, this.getX() + (this.imgW / 3), this.getY(), new Vector2(0, 8)));
         return false;
     }

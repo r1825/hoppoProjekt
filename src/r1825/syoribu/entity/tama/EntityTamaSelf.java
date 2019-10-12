@@ -11,13 +11,6 @@ public class EntityTamaSelf extends EntityTamaBase {
     }
 
     @Override
-    public boolean update ( ) {
-        this.setY(this.getY()+move.getY());
-        this.setX(this.getX()+move.getX());
-        return false;
-    }
-
-    @Override
     public int getDamage ( ) {
         return 1;
     }

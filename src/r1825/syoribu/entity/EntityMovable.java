@@ -7,17 +7,21 @@ import r1825.syoribu.Vector2;
 
 public class EntityMovable extends ImageObject {
 
-    protected Vector2 move;
+    protected Vector2 vectorMove;
 
     public EntityMovable(Image image, Pane pane, double x, double y, Vector2 vec) {
         super(image, pane, x, y);
-        this.move = vec;
+        this.vectorMove = vec;
     }
 
     public boolean update ( ) {
-        this.setY(this.getY()+move.getY());
-        this.setX(this.getX()+move.getX());
+        this.move(vectorMove);
         return false;
+    }
+
+    protected void move ( Vector2 vector2 ) {
+        this.setY(this.getY()+vector2.getY());
+        this.setX(this.getX()+vector2.getX());
     }
 
 }

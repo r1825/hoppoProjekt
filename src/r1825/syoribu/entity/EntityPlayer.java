@@ -6,6 +6,7 @@ import r1825.syoribu.Main;
 import r1825.syoribu.Vector2;
 import r1825.syoribu.entity.tama.EntityTamaBase;
 import r1825.syoribu.entity.tama.EntityTamaSelf;
+import r1825.syoribu.entity.tama.EntityTamaSelfDefence;
 import r1825.syoribu.entity.tama.EntityTamaSelfSearch;
 
 import java.util.ArrayDeque;
@@ -26,6 +27,8 @@ public class EntityPlayer extends EntityLiving {
     public int intervalNormalTama = 20;
     public int intervalNanameTama = 20;
     public int intervalSearchTama = 100;
+
+    public int tsar_bomba = 1;
 
     private int numNaname = 0;
 
@@ -53,7 +56,7 @@ public class EntityPlayer extends EntityLiving {
     }
 
     public boolean decreaseIntervalNormal () {
-        if ( intervalNormalTama > 5 ) {
+        if ( intervalNormalTama > 3 ) {
             intervalNormalTama--;
             return true;
         }
@@ -63,7 +66,7 @@ public class EntityPlayer extends EntityLiving {
     }
 
     public boolean decreaseIntervalNaname () {
-        if ( intervalNanameTama > 5 ) {
+        if ( intervalNanameTama > 3 ) {
             intervalNanameTama--;
             return true;
         }
@@ -74,7 +77,7 @@ public class EntityPlayer extends EntityLiving {
 
     public boolean decreaseIntervalSearch () {
         cntSearchTama = 5;
-        if ( intervalSearchTama > 20 ) {
+        if ( intervalSearchTama > 10 ) {
             intervalSearchTama -= 5;
             return true;
         }
@@ -100,6 +103,7 @@ public class EntityPlayer extends EntityLiving {
         if ( cntSearchTama < 0 ) {
             cntSearchTama = intervalSearchTama;
             listTama.add(new EntityTamaSelfSearch(Main.game.imageTamaSelfSearch, pane, this.getX() + 24, this.getY() - 8, new Vector2(-4, -8)));
+            listTama.add(new EntityTamaSelfDefence(Main.game.imageTamaSelfDefence, pane, this.getX() + 24, this.getY() - 8, new Vector2(-4, 8)));
         }
     }
 

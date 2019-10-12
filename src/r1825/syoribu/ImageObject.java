@@ -7,7 +7,7 @@ import javafx.scene.layout.Pane;
 public class ImageObject {
 
     protected Pane pane;
-    ImageView imageView = new ImageView();
+    public ImageView imageView = new ImageView();
     protected final int imgH, imgW;
 
     public ImageObject (Image image, Pane pane, double x, double y ) {
@@ -22,9 +22,9 @@ public class ImageObject {
 
     public boolean isOutside ( ) {
         if ( this.getX() <= -this.imgW  ) return true;
-        if ( this.getX() >= Game.GAME_WIDTH - this.imgW ) return true;
+        if ( this.getX() >= Game.GAME_WIDTH-this.imgW ) return true;
         if ( this.getY() <= -100  ) return true;
-        if ( this.getY() >= Game.HEIGHT + 256 ) return true;
+        if ( this.getY() >= Game.HEIGHT ) return true;
         return false;
     }
 

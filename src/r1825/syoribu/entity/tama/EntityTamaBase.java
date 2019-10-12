@@ -10,7 +10,6 @@ public class EntityTamaBase extends EntityMovable {
 
     public EntityTamaBase(Image image, Pane pane, double x, double y, Vector2 move ) {
         super(image, pane, x, y, move);
-        this.move = move;
     }
 
     public int getDamage ( ) {

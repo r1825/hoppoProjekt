@@ -15,10 +15,9 @@ public class EntityEnemyNormal extends EntityEnemyBase {
 
     @Override
     public boolean update ( ) {
-        this.setY(this.getY()+move.getY());
-        this.setX(this.getX()+move.getX());
+        move(vectorMove);
         this.time++;
-        if ( this.time >= 40 ) {
+        if ( this.time >= 60 ) {
             this.time = 0;
             Main.game.listEnemyTamaAdd.add(new EntityTamaEnemyNormal(this.tama, this.pane, this.getX() + (this.imgW / 3), this.getY(), new Vector2(0, 8)));
         }

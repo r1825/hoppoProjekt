@@ -16,10 +16,9 @@ public class EntityEnemyDivide extends EntityEnemyBase {
 
     @Override
     public boolean update ( ) {
-        this.setY(this.getY()+move.getY());
-        this.setX(this.getX()+move.getX());
+        this.move(vectorMove);
         this.time++;
-        if ( this.time >= 80 ) {
+        if ( this.time >= 100 ) {
             this.time = 0;
             Main.game.listEnemyTamaAdd.add(new EntityTamaEnemyDivide(this.tama, this.pane, this.getX() + (this.imgW / 3), this.getY(), new Vector2(0, 8)));
         }
