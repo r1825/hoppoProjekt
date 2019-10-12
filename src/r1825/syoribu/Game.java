@@ -28,6 +28,7 @@ import r1825.syoribu.entity.tama.EntityTamaSelfSearch;
 import java.awt.*;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -67,7 +68,7 @@ public class Game {
     public List<EntityTamaBase> listEnemyTamaAdd = new ArrayList<>();
     List<EntityItem> listItem = new ArrayList<>();
 
-    BigInteger score = BigInteger.ZERO;
+    int score = 0;
 
     AnimationTimer animationTimer;
 
@@ -95,7 +96,7 @@ public class Game {
         root.getChildren().add(scoreBack);
 
         Text textScore = new Text();
-        textScore.setText(score.toString());
+        textScore.setText("Score: " + score);
         textScore.setY(16*2);
         textScore.setX(GAME_WIDTH + 16);
         textScore.setFont(new Font(20));
@@ -123,7 +124,7 @@ public class Game {
                 player.update();
 
                 textLife.setText( player.getLife() + String.format("\n####-DEBUG-####\n%d:%d\n%d:%d\n%d:%d\n%d\n##############", player.intervalNormalTama, player.cntNormalTama, player.intervalNanameTama, player.cntNanameTama, player.intervalSearchTama, player.cntSearchTama, minEnemyNum));
-                textScore.setText(score.toString());
+                textScore.setText("Score: " + score);
 
                 if ( rnd.nextInt(1000) < 1 ) minEnemyNum++;
                 popItem();
@@ -214,7 +215,7 @@ public class Game {
                             if ( i.isDead() ) {
                                 i.setY(-70);
                                 iteratorEnemy.remove();
-                                score = score.add(new BigInteger("" + i.getScore()));
+                                score = score + i.getScore();
                             }
                         }
                     }
@@ -255,6 +256,9 @@ public class Game {
                             i.effect(player);
                             i.setX(-70);
                             iteratorItem.remove();
+                            if ( rnd.nextInt(10) < 2 ) {
+                                minEnemyNum++;
+                            }
                         }
                     }
                 }
@@ -269,7 +273,14 @@ public class Game {
     }
 
     public void gameFinish ( ) {
-        System.out.println(score.toString());
+        System.out.println(score);
+        try {
+            SQLManager.insertResult(0, score);
+        }
+        catch ( Exception e ) {
+            e.printStackTrace();
+        }
+
         animationTimer.stop();
         System.exit(0);
     }
