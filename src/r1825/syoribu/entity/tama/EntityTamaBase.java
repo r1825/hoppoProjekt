@@ -16,4 +16,8 @@ public class EntityTamaBase extends EntityMovable {
     public int getDamage ( ) {
         return 0;
     }
+
+    public boolean canGoThrough () {
+        return false;
+    }
 }

@@ -4,6 +4,7 @@ import javafx.animation.AnimationTimer;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -11,11 +12,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import r1825.syoribu.entity.EntitySelf;
+import r1825.syoribu.entity.EntityPlayer;
 import r1825.syoribu.entity.enemy.EntityEnemyBase;
 import r1825.syoribu.entity.enemy.EntityEnemyDivide;
 import r1825.syoribu.entity.enemy.EntityEnemyLaser;
 import r1825.syoribu.entity.enemy.EntityEnemyNormal;
+import r1825.syoribu.entity.item.EntityItem;
+import r1825.syoribu.entity.item.EntityItemEquipment;
+import r1825.syoribu.entity.item.EntityItemRepair;
 import r1825.syoribu.entity.tama.EntityTamaBase;
 import r1825.syoribu.entity.tama.EntityTamaEnemyNormal;
 import r1825.syoribu.entity.tama.EntityTamaSelf;
@@ -34,14 +38,14 @@ public class Game {
     public static final int WIDTH = 1280;
     public static final int SCORE_WIDTH = 256;
     public static final int GAME_WIDTH = WIDTH - SCORE_WIDTH;
-    public static final int MIN_EMEMY_NUM = 16;
+
+    public static int minEnemyNum = 3;
 
     SecureRandom rnd = new SecureRandom();
 
     Pane root = new Pane();
 
-    //public ImageView self = new ImageView();
-    public EntitySelf player;
+    public EntityPlayer player;
     ImageView background = new ImageView();
 
     public Image imageTamaSelf = new Image("r1825/syoribu/img/tama1.png");
@@ -54,12 +58,14 @@ public class Game {
     public Image imageTamaEnemyNaname = new Image("r1825/syoribu/img/enemy2.png");
     public Image imageTamaEnemyLaser = new Image("r1825/syoribu/img/tama4.png");
 
-    List<EntityTamaBase> listMyTama = new ArrayList<>();
+    public Image imageItemPowerup = new Image("r1825/syoribu/img/power.png");
+    public Image imageItemRepair = new Image("r1825/syoribu/img/repair.png");
+
+
     public List<EntityEnemyBase> listEnemy = new ArrayList<>();
     List<EntityTamaBase> listEnemyTama = new ArrayList<>();
     public List<EntityTamaBase> listEnemyTamaAdd = new ArrayList<>();
-
-    int selfTamaCoolTCnt = 0;
+    List<EntityItem> listItem = new ArrayList<>();
 
     BigInteger score = BigInteger.ZERO;
 
@@ -104,10 +110,10 @@ public class Game {
         textLife.setFill(Color.WHITE);
         root.getChildren().add(textLife);
 
-        player = new EntitySelf(imageSelf, root, 255, 255, new Vector2(0, 0), 3);
+        player = new EntityPlayer(imageSelf, root, 255, 255, new Vector2(0, 0), 3);
 
-        scene.setOnMouseMoved(event -> mouseMoved(event));
-        scene.setOnKeyPressed(event -> keyPressed(event));
+        scene.setOnMouseMoved(this::mouseMoved);
+        scene.setOnKeyPressed(this::keyPressed);
 
         animationTimer = new AnimationTimer() {
 
@@ -116,20 +122,20 @@ public class Game {
 
                 player.update();
 
-                textLife.setText( player.getLife() + "");
+                textLife.setText( player.getLife() + String.format("\n####-DEBUG-####\n%d:%d\n%d:%d\n%d:%d\n%d\n##############", player.intervalNormalTama, player.cntNormalTama, player.intervalNanameTama, player.cntNanameTama, player.intervalSearchTama, player.cntSearchTama, minEnemyNum));
                 textScore.setText(score.toString());
 
+                if ( rnd.nextInt(1000) < 1 ) minEnemyNum++;
+                popItem();
+
                 //新しい敵の出現
-                while ( listEnemy.size() < MIN_EMEMY_NUM ) {
+                while ( listEnemy.size() < minEnemyNum ) {
                     popEnemy();
                 }
 
-                // 自機の弾のクールダウンカウントを減らす
-                if ( selfTamaCoolTCnt > 0 ) selfTamaCoolTCnt--;
-
                 // 自機の弾の移動
                 {
-                    var iteratorMyTama = listMyTama.iterator();
+                    var iteratorMyTama = player.listTama.iterator();
                     while (iteratorMyTama.hasNext()) {
                         var i = iteratorMyTama.next();
                         boolean flg = i.update();
@@ -166,6 +172,19 @@ public class Game {
                     }
                 }
 
+                // アイテムの移動
+                {
+                    var iteratorItem = listItem.iterator();
+                    while ( iteratorItem.hasNext() ) {
+                        var i = iteratorItem.next();
+                        i.update();
+                        if ( i.isOutside() ) {
+                            i.setX(-70);
+                            iteratorItem.remove();
+                        }
+                    }
+                }
+
                 // 敵と自機の衝突判定と敵と自弾の衝突判定
                 {
                     boolean isPlayerHit = false;
@@ -176,14 +195,16 @@ public class Game {
                             isPlayerHit = true;
                         }
 
-                        var iteratorMyTama = listMyTama.iterator();
+                        var iteratorMyTama = player.listTama.iterator();
                         boolean flg = false;
                         int damage = 0;
                         while (iteratorMyTama.hasNext()) {
                             var j = iteratorMyTama.next();
                             if (ImageObject.dist(i, j) <= 32) {
-                                j.setY(-70);
-                                iteratorMyTama.remove();
+                                if ( !j.canGoThrough() ) {
+                                    j.setY(-70);
+                                    iteratorMyTama.remove();
+                                }
                                 flg = true;
                                 damage = Math.max(damage, j.getDamage());
                             }
@@ -205,7 +226,7 @@ public class Game {
                     }
                 }
 
-                // 敵の弾と
+                // 敵の弾と自機の衝突判定
                 {
                     int damage = 0;
                     var iteratorEnemyTama = listEnemyTama.iterator();
@@ -213,8 +234,10 @@ public class Game {
                         var i = iteratorEnemyTama.next();
                         if (ImageObject.dist(i, player) <= 32) {
                             damage = Math.max(i.getDamage(), damage);
-                            iteratorEnemyTama.remove();
-                            i.setY(-70);
+                            if ( !i.canGoThrough() ) {
+                                iteratorEnemyTama.remove();
+                                i.setY(-70);
+                            }
                         }
                     }
                     player.damage(damage);
@@ -223,24 +246,25 @@ public class Game {
                     }
                 }
 
+                // アイテムの取得判定
+                {
+                    var iteratorItem = listItem.iterator();
+                    while ( iteratorItem.hasNext() ) {
+                        var i = iteratorItem.next();
+                        if ( ImageObject.dist(i, player) <= 32 ) {
+                            i.effect(player);
+                            i.setX(-70);
+                            iteratorItem.remove();
+                        }
+                    }
+                }
+
                 listEnemyTama.addAll(listEnemyTamaAdd);
                 listEnemyTamaAdd.clear();
-
-                if ( selfTamaCoolTCnt <= 0 ) {
-                    listMyTama.add(new EntityTamaSelf(imageTamaSelf, root, player.getX() + 24, player.getY() - 8, new Vector2(0, -8)));
-                    listMyTama.add(new EntityTamaSelf(imageTamaSelfNaname, root, player.getX() + 24, player.getY() - 8, new Vector2(4, -8)));
-                    listMyTama.add(new EntityTamaSelf(imageTamaSelfNaname, root, player.getX() + 24, player.getY() - 8, new Vector2(-4, -8)));
-                    listMyTama.add(new EntityTamaSelf(imageTamaSelfNaname, root, player.getX() + 24, player.getY() - 8, new Vector2(8, 0)));
-                    listMyTama.add(new EntityTamaSelf(imageTamaSelfNaname, root, player.getX() + 24, player.getY() - 8, new Vector2(-8, 0)));
-                    if ( rnd.nextInt(3) == 0 ) {
-                        listMyTama.add(new EntityTamaSelfSearch(imageTamaSelfSearch, root, player.getX() + 24, player.getY() - 8, new Vector2(-4, -8)));
-                    }
-                    selfTamaCoolTCnt = 10;
-                }
             }
         };
 
-        animationTimer.start();
+        //animationTimer.start();
 
     }
 
@@ -251,12 +275,12 @@ public class Game {
     }
 
     private void mouseMoved (MouseEvent mouseEvent) {
-        player.setY(mouseEvent.getY() - ( (int)player.imgH >> 1 ) );
-        if ( mouseEvent.getX() + ((int)player.imgW >> 1) > GAME_WIDTH ) {
+        player.setY(mouseEvent.getY() - ( player.imgH >> 1 ) );
+        if ( mouseEvent.getX() + (player.imgW >> 1) > GAME_WIDTH ) {
             player.setX(GAME_WIDTH - player.imgW );
         }
         else {
-            player.setX((mouseEvent.getX() - ((int) player.imgW >> 1)));
+            player.setX((mouseEvent.getX() - (player.imgW >> 1)));
         }
     }
 
@@ -275,15 +299,20 @@ public class Game {
         }
     }
 
-    private void keyPressed (KeyEvent keyEvent){
-        /*
-        if ( keyEvent.getCode() == KeyCode.SPACE ) {
-            if ( selfTamaCoolTCnt > 0 ) return;
-            listMyTama.add(new EntityTamaSelf(imageTamaSelf, root, self.getX() + 24, self.getY() - 8, new Vector2(0, -8)));
-            listMyTama.add(new EntityTamaSelf(imageTamaSelfNaname, root, self.getX() + 24, self.getY() - 8, new Vector2(4, -8)));
-            listMyTama.add(new EntityTamaSelf(imageTamaSelfNaname, root, self.getX() + 24, self.getY() - 8, new Vector2(-4, -8)));
-            selfTamaCoolTCnt = 5;
+    private void popItem () {
+        if ( rnd.nextInt(1000) < 10 ) {
+            if ( rnd.nextInt(5) == 0 ) {
+                listItem.add(new EntityItemRepair(imageItemRepair, root, rnd.nextInt(WIDTH), -65, new Vector2(0, 4)));
+            }
+            else {
+                listItem.add(new EntityItemEquipment(imageItemPowerup, root, rnd.nextInt(WIDTH), -65, new Vector2(0, 4)));
+            }
         }
-        */
+    }
+
+    private void keyPressed (KeyEvent keyEvent){
+        if ( keyEvent.getCode() == KeyCode.SPACE ) {
+            animationTimer.start();
+        }
     }
 }
