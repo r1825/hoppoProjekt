@@ -26,8 +26,8 @@ public class EntityTamaSelfSearch extends EntityTamaBase {
             }
         }
 
-        double x = entityEnemyBase.getX()-this.getX();
-        double y = entityEnemyBase.getY()-this.getY();
+        double x = entityEnemyBase.getCentreX()-this.getCentreX();
+        double y = entityEnemyBase.getCentreY()-this.getCentreY();
         double length = Math.sqrt(x*x + y*y);
 
         this.vectorMove = new Vector2(x/length * 8, y/length * 8);

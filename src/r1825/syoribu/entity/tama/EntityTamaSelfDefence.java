@@ -31,18 +31,17 @@ public class EntityTamaSelfDefence extends EntityTamaBase {
                 entityTamaBase = i;
                 if ( tmp < 32 ) {
                     isDead = true;
-                    pane.getChildren().remove(i);
+                    pane.getChildren().remove(i.imageView);
                     iterator.remove();
-                    i.setX(-70);
                 }
             }
         }
 
-        double x = entityTamaBase.getX()-this.getX();
-        double y = entityTamaBase.getY()-this.getY();
+        double x = entityTamaBase.getCentreX()-this.getCentreX();
+        double y = entityTamaBase.getCentreY()-this.getCentreY();
         double length = Math.sqrt(x*x + y*y);
 
-        this.vectorMove = new Vector2(x/length * 8, y/length * 8);
+        this.vectorMove = new Vector2(x/length * 16, y/length * 16);
         this.move(vectorMove);
         return isDead;
     }

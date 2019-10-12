@@ -23,16 +23,14 @@ import r1825.syoribu.entity.item.EntityItemRepair;
 import r1825.syoribu.entity.item.EntityItemTsarBomba;
 import r1825.syoribu.entity.tama.*;
 
-import java.awt.*;
-import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.sql.SQLException;
-import java.sql.Time;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Random;
 
 public class Game {
+
+    public static int[] dx = {0, 1, 0, -1, 0, 1, 1, -1, -1};
+    public static int[] dy = {0, 0, 1, 0, -1, 1, -1, 1, -1};
 
     public static final int HEIGHT = 720;
     public static final int WIDTH = 1280;
@@ -65,7 +63,6 @@ public class Game {
     public Image imageItemTsar = new Image("r1825/syoribu/img/nuclear.png");
 
     public Image imageTsarGif = new Image("r1825/syoribu/img/tsar.gif");
-
 
     public List<EntityEnemyBase> listEnemy = new ArrayList<>();
     public List<EntityTamaBase> listEnemyTama = new ArrayList<>();
@@ -108,21 +105,12 @@ public class Game {
         scoreBack.setX(WIDTH-256);
         root.getChildren().add(scoreBack);
 
-        Text textScore = new Text();
-        textScore.setText("Score: " + score);
-        textScore.setY(16*2);
-        textScore.setX(GAME_WIDTH + 16);
-        textScore.setFont(new Font(20));
-        textScore.setFill(Color.WHITE);
-        root.getChildren().add(textScore);
-
-        Text textLife = new Text();
-        textLife.setText(1 + "");
-        textLife.setY(16*4);
-        textLife.setX(GAME_WIDTH + 16);
-        textLife.setFont(new Font(20));
-        textLife.setFill(Color.WHITE);
-        root.getChildren().add(textLife);
+        Text testData = new Text();
+        testData.setY(16*2);
+        testData.setX(GAME_WIDTH + 16);
+        testData.setFont(new Font(20));
+        testData.setFill(Color.WHITE);
+        root.getChildren().add(testData);
 
         player = new EntityPlayer(imageSelf, root, 255, 255, new Vector2(0, 0), 3);
 
@@ -141,8 +129,7 @@ public class Game {
                 if ( isStopped ) return;
                 player.update();
 
-                textLife.setText( player.getLife() + String.format("\n####-DEBUG-####\n%d:%d\n%d:%d\n%d:%d\n%d\n###############", player.intervalNormalTama, player.cntNormalTama, player.intervalNanameTama, player.cntNanameTama, player.intervalSearchTama, player.cntSearchTama, minEnemyNum));
-                textScore.setText("Score: " + score);
+                testData.setText(String.format("Score: %d\nLife: %d\nTsarBomba: %d", score, player.getLife(), player.tsar_bomba));
 
                 if ( rnd.nextInt(1000) < 1 ) minEnemyNum++;
                 popItem();
@@ -160,8 +147,7 @@ public class Game {
                         boolean flg = i.update();
                         if (flg || i.isOutside()) {
                             iteratorMyTama.remove();
-                            root.getChildren().remove(i);
-                            i.setY(-70);
+                            root.getChildren().remove(i.imageView);
                         }
                     }
                 }
@@ -173,8 +159,7 @@ public class Game {
                         var i = iteratorEnemy.next();
                         boolean flg = i.update();
                         if ( flg || i.isOutside() ) {
-                            i.setX(-70);
-                            root.getChildren().remove(i);
+                            root.getChildren().remove(i.imageView);
                             iteratorEnemy.remove();
                         }
                     }
@@ -187,8 +172,7 @@ public class Game {
                         var i = iteratorEnemyTama.next();
                         boolean flg = i.update();
                         if (flg || i.isOutside()) {
-                            i.setX(-70);
-                            root.getChildren().remove(i);
+                            root.getChildren().remove(i.imageView);
                             iteratorEnemyTama.remove();
                         }
                     }
@@ -201,75 +185,119 @@ public class Game {
                         var i = iteratorItem.next();
                         i.update();
                         if ( i.isOutside() ) {
-                            i.setX(-70);
-                            root.getChildren().remove(i);
+                            root.getChildren().remove(i.imageView);
                             iteratorItem.remove();
                         }
                     }
                 }
 
-                // 敵と自機の衝突判定と敵と自弾の衝突判定
+                // 敵と自機の衝突判定
                 {
-                    boolean isPlayerHit = false;
-                    var iteratorEnemy = listEnemy.iterator();
-                    while (iteratorEnemy.hasNext()) {
-                        var i = iteratorEnemy.next();
-                        if (ImageObject.dist(i, player) <= 32) {
-                            isPlayerHit = true;
-                        }
-
-                        var iteratorMyTama = player.listTama.iterator();
-                        boolean flg = false;
+                    listEnemy.sort(Comparator.comparingInt(x -> x.pos));
+                    int x = player.pos % 1000;
+                    int y = player.pos / 1000;
+                    for ( int I = 0; I < 9; I++ ) {
+                        int nx = x + dx[I];
+                        int ny = y + dy[I];
+                        int npos = nx + 1000 * ny;
+                        int pos = lowerBoundEnemy(listEnemy, npos);
+                        if ( pos < 0 || listEnemy.size()-1 < pos ) continue;
                         int damage = 0;
-                        while (iteratorMyTama.hasNext()) {
-                            var j = iteratorMyTama.next();
-                            if (ImageObject.dist(i, j) <= 32) {
-                                if ( !j.canGoThrough() ) {
-                                    j.setY(-70);
-                                    root.getChildren().remove(j);
-                                    iteratorMyTama.remove();
-                                }
-                                flg = true;
-                                damage = Math.max(damage, j.getDamage());
-                            }
-                        }
-                        if (flg) {
-                            i.damage(damage);
-                            if ( i.isDead() ) {
-                                i.setY(-70);
-                                root.getChildren().remove(i);
+                        var iteratorEnemy = listEnemy.listIterator(pos);
+
+                        while (iteratorEnemy.hasNext()) {
+                            var i = iteratorEnemy.next();
+                            if ( i.pos != npos ) break;
+                            if (ImageObject.isTouching(i, player)) {
+                                damage = 1;
                                 iteratorEnemy.remove();
-                                score = score + i.getScore();
+                                root.getChildren().remove(i);
+                                i.setY(-70);
                             }
                         }
-                    }
-                    if ( isPlayerHit ) {
-                        player.damage(1);
+                        player.damage(damage);
                         if ( player.isDead() ) {
                             gameFinish();
                         }
                     }
                 }
 
-                // 敵の弾と自機の衝突判定
+                // 敵と自弾の衝突判定
                 {
-                    int damage = 0;
-                    var iteratorEnemyTama = listEnemyTama.iterator();
-                    while (iteratorEnemyTama.hasNext()) {
-                        var i = iteratorEnemyTama.next();
-                        if (ImageObject.dist(i, player) <= 32) {
-                            damage = Math.max(i.getDamage(), damage);
-                            if ( !i.canGoThrough() ) {
-                                iteratorEnemyTama.remove();
-                                root.getChildren().remove(i);
-                                i.setY(-70);
+                    player.listTama.sort(Comparator.comparingInt(x -> x.pos));
+
+                    var iteratorEnemy = listEnemy.iterator();
+                    while (iteratorEnemy.hasNext()) {
+                        var i = iteratorEnemy.next();
+                        int x = i.pos % 1000;
+                        int y = i.pos / 1000;
+                        boolean flg = false;
+                        int damage = 0;
+                        for ( int I = 0 ; I < 9; I++ ) {
+                            int nx = x + dx[I];
+                            int ny = y + dy[I];
+                            int npos = nx + 1000 * ny;
+
+                            int pos = lowerBoundTama(player.listTama, npos);
+                            if ( pos < 0 || player.listTama.size()-1 < pos ) continue;
+                            var iteratorMyTama = player.listTama.listIterator(pos);
+                            while ( iteratorMyTama.hasNext() ) {
+                                var j = iteratorMyTama.next();
+                                if ( npos != j.pos ) break;
+                                if ( ImageObject.isTouching(i, j) ) {
+                                    if ( !j.canGoThrough() ) {
+                                        root.getChildren().remove(j.imageView);
+                                        iteratorMyTama.remove();
+                                    }
+                                    flg = true;
+                                    damage = Math.max(damage, j.getDamage());
+                                }
+                            }
+                        }
+                        if ( flg ) {
+                            i.damage(damage);
+                            if ( i.isDead() ) {
+                                root.getChildren().remove(i.imageView);
+                                iteratorEnemy.remove();
+                                score = score + i.getScore();
                             }
                         }
                     }
-                    player.damage(damage);
-                    if ( player.isDead() ) {
-                        gameFinish();
+                }
+
+                // 敵の弾と自機の衝突判定
+                {
+                    Collections.sort(listEnemyTama, Comparator.comparingInt(x -> x.pos));
+                    int x = player.pos % 1000;
+                    int y = player.pos / 1000;
+                    for ( int I = 0; I < 9; I++ ) {
+                        int nx = x + dx[I];
+                        int ny = y + dy[I];
+                        int npos = nx + 1000 * ny;
+
+                        int pos = lowerBoundTama(listEnemyTama, npos);
+                        if ( pos < 0 || listEnemyTama.size()-1 < pos ) continue;
+                        int damage = 0;
+                        var iteratorEnemyTama = listEnemyTama.listIterator(pos);
+
+                        while (iteratorEnemyTama.hasNext()) {
+                            var i = iteratorEnemyTama.next();
+                            if ( i.pos != npos ) break;
+                            if (ImageObject.isTouching(i, player)) {
+                                damage = Math.max(i.getDamage(), damage);
+                                if ( !i.canGoThrough() ) {
+                                    iteratorEnemyTama.remove();
+                                    root.getChildren().remove(i.imageView);
+                                }
+                            }
+                        }
+                        player.damage(damage);
+                        if ( player.isDead() ) {
+                            gameFinish();
+                        }
                     }
+
+
                 }
 
                 // アイテムの取得判定
@@ -277,10 +305,9 @@ public class Game {
                     var iteratorItem = listItem.iterator();
                     while ( iteratorItem.hasNext() ) {
                         var i = iteratorItem.next();
-                        if ( ImageObject.dist(i, player) <= 32 ) {
+                        if ( ImageObject.isTouching(i, player) ) {
                             i.effect(player);
-                            i.setX(-70);
-                            root.getChildren().remove(i);
+                            root.getChildren().remove(i.imageView);
                             iteratorItem.remove();
                             if ( rnd.nextInt(10) < 2 ) {
                                 minEnemyNum++;
@@ -326,6 +353,8 @@ public class Game {
         else {
             player.setX((mouseEvent.getX() - (player.imgW >> 1)));
         }
+        player.pos = ((int)player.getX() >> 5) + 1000 * ((int)player.getY() >> 5);
+        //System.out.println(player.pos);
     }
 
     private void popEnemy () {
@@ -367,6 +396,9 @@ public class Game {
         if ( keyEvent.getCode() == KeyCode.H ) {
             player.damage(-1);
         }
+        if ( keyEvent.getCode() == KeyCode.K ) {
+            listEnemy.add(new EntityEnemyLaser(imageEnemyLaser, root, player.getX(), player.getY(), imageTamaEnemyLaser, new Vector2(0, 0)));
+        }
         if ( keyEvent.getCode() == KeyCode.U ) {
             int type = rnd.nextInt(10);
             if ( type < 4 ) {
@@ -386,8 +418,10 @@ public class Game {
         }
         if ( keyEvent.getCode() == KeyCode.SPACE ) {
             if ( isStopped || !isDuringGame ) return;
-            for ( double i = 0; i < 360; i += 2) {
-                Vector2 vec = new Vector2(Math.cos(Math.toRadians(i)), Math.sin(Math.toRadians(i)));
+            if ( player.tsar_bomba <= 0 ) return;
+            player.tsar_bomba--;
+            for ( double i = 0; i < 360; i += 1) {
+                Vector2 vec = new Vector2(Math.cos(Math.toRadians(i)) * 3, Math.sin(Math.toRadians(i)) * 3);
 
                 EntityTamaBase entityTamaBase = new EntityTamaSelfTsarBomba(imageTamaSelfBullet, root, player.getCentreX(), player.getCentreY(), vec);
                 entityTamaBase.imageView.setRotate(i+90);
@@ -411,7 +445,25 @@ public class Game {
         Main.game.stop(timeMilli);
     }
 
-    public static void add ( List<ImageObject> list, ImageObject imageObject ) {
+    public static int lowerBoundTama (List<EntityTamaBase> list, int val ) {
+        int left = -1;
+        int right = list.size();
+        while ( right - left > 1 ) {
+            int mid = left + ( right - left ) / 2;
+            if ( list.get(mid).pos >= val ) right = mid;
+            else left = mid;
+        }
+        return right;
+    }
 
+    public static int lowerBoundEnemy (List<EntityEnemyBase> list, int val ) {
+        int left = -1;
+        int right = list.size();
+        while ( right - left > 1 ) {
+            int mid = left + ( right - left ) / 2;
+            if ( list.get(mid).pos >= val ) right = mid;
+            else left = mid;
+        }
+        return right;
     }
 }

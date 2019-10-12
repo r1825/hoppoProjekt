@@ -8,10 +8,12 @@ import r1825.syoribu.Vector2;
 public class EntityMovable extends ImageObject {
 
     protected Vector2 vectorMove;
+    public int pos;
 
     public EntityMovable(Image image, Pane pane, double x, double y, Vector2 vec) {
         super(image, pane, x, y);
         this.vectorMove = vec;
+        pos = ((int)x >> 6) + 1000 * ((int)y >> 6);
     }
 
     public boolean update ( ) {
@@ -22,6 +24,7 @@ public class EntityMovable extends ImageObject {
     protected void move ( Vector2 vector2 ) {
         this.setY(this.getY()+vector2.getY());
         this.setX(this.getX()+vector2.getX());
+        pos = ((int)getX() >> 5) + 1000 * ((int)getY() >> 5);
     }
 
 }
