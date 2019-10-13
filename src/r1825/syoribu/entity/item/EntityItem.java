@@ -5,9 +5,6 @@ import javafx.scene.layout.Pane;
 import r1825.syoribu.Vector2;
 import r1825.syoribu.entity.EntityMovable;
 import r1825.syoribu.entity.EntityPlayer;
-import r1825.syoribu.entity.tama.EntityTamaBase;
-
-import java.util.List;
 
 public class EntityItem extends EntityMovable {
 

@@ -1,9 +1,7 @@
 package r1825.syoribu.entity.item;
 
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
-import r1825.syoribu.Game;
 import r1825.syoribu.ImageObject;
 import r1825.syoribu.Main;
 import r1825.syoribu.Vector2;

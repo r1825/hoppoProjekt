@@ -13,7 +13,7 @@ public class EntityMovable extends ImageObject {
     public EntityMovable(Image image, Pane pane, double x, double y, Vector2 vec) {
         super(image, pane, x, y);
         this.vectorMove = vec;
-        pos = ((int)x >> 6) + 1000 * ((int)y >> 6);
+        pos = ((int)x >> 5) + 1000 * ((int)y >> 5);
     }
 
     public boolean update ( ) {

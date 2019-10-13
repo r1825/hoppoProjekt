@@ -9,7 +9,6 @@ import r1825.syoribu.entity.tama.EntityTamaSelf;
 import r1825.syoribu.entity.tama.EntityTamaSelfDefence;
 import r1825.syoribu.entity.tama.EntityTamaSelfSearch;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,13 +19,13 @@ public class EntityPlayer extends EntityLiving {
 
     private int damageCoolDown = 40;
 
-    public int cntNormalTama = 20;
-    public int cntNanameTama = 20;
-    public int cntSearchTama = 0x3f3f3f3f;
+    private int cntNormalTama = 20;
+    private int cntNanameTama = 20;
+    private int cntSearchTama = 0x3f3f3f3f;
 
-    public int intervalNormalTama = 20;
-    public int intervalNanameTama = 20;
-    public int intervalSearchTama = 100;
+    private int intervalNormalTama = 20;
+    private int intervalNanameTama = 20;
+    private int intervalSearchTama = 100;
 
     public int tsar_bomba = 1;
 

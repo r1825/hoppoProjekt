@@ -21,10 +21,13 @@ import r1825.syoribu.entity.item.EntityItem;
 import r1825.syoribu.entity.item.EntityItemEquipment;
 import r1825.syoribu.entity.item.EntityItemRepair;
 import r1825.syoribu.entity.item.EntityItemTsarBomba;
-import r1825.syoribu.entity.tama.*;
+import r1825.syoribu.entity.tama.EntityTamaBase;
+import r1825.syoribu.entity.tama.EntityTamaSelfTsarBomba;
 
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class Game {
@@ -37,7 +40,7 @@ public class Game {
     public static final int SCORE_WIDTH = 256;
     public static final int GAME_WIDTH = WIDTH - SCORE_WIDTH;
 
-    public static int minEnemyNum = 3;
+    public static int minEnemyNum = 1000;
 
     SecureRandom rnd = new SecureRandom();
 
@@ -296,8 +299,6 @@ public class Game {
                             gameFinish();
                         }
                     }
-
-
                 }
 
                 // アイテムの取得判定

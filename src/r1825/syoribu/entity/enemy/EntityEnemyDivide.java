@@ -5,7 +5,6 @@ import javafx.scene.layout.Pane;
 import r1825.syoribu.Main;
 import r1825.syoribu.Vector2;
 import r1825.syoribu.entity.tama.EntityTamaEnemyDivide;
-import r1825.syoribu.entity.tama.EntityTamaEnemyNormal;
 
 public class EntityEnemyDivide extends EntityEnemyBase {
 
@@ -20,7 +19,7 @@ public class EntityEnemyDivide extends EntityEnemyBase {
         this.time++;
         if ( this.time >= 800 ) {
             this.time = 0;
-            Main.game.listEnemyTamaAdd.add(new EntityTamaEnemyDivide(this.tama, this.pane, this.getX() + (this.imgW / 3), this.getY(), new Vector2(0, 8)));
+            Main.game.listEnemyTamaAdd.add(new EntityTamaEnemyDivide(this.tama, this.pane, this.getX() + (this.imgW / 3), this.getCentreY(), new Vector2(0, 8)));
         }
         return false;
     }

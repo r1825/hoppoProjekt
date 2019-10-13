@@ -55,14 +55,6 @@ public class ImageObject {
     public static double dist ( ImageObject a, ImageObject b ) {
         double x = Math.abs( a.getCentreX() - b.getCentreX() );
         double y = Math.abs( a.getCentreY() - b.getCentreY() );
-        //return Math.sqrt(x*x+y*y);
-        return Math.pow(x*x*x+y*y*y, 1.0/3.0);
-    }
-
-    public static double dist ( ImageObject a, ImageView b ) {
-        double x = Math.abs( a.getCentreX() - ( b.getX() + ( (int)b.getImage().getWidth()  >> 1 ) ) );
-        double y = Math.abs( a.getCentreY() - ( b.getY() + ( (int)b.getImage().getHeight() >> 1 ) ) );
-        //return Math.sqrt(x*x+y*y);
         return Math.pow(x*x*x+y*y*y, 1.0/3.0);
     }
 
@@ -72,18 +64,11 @@ public class ImageObject {
         return Math.sqrt(x*x+y*y);
     }
 
-    public static double dist2 ( ImageObject a, ImageView b ) {
-        double x = Math.abs( a.getCentreX() - ( b.getX() + ( (int)b.getImage().getWidth()  >> 1 ) ) );
-        double y = Math.abs( a.getCentreY() - ( b.getY() + ( (int)b.getImage().getHeight() >> 1 ) ) );
-        return Math.sqrt(x*x+y*y);
-    }
-
     public static boolean isTouching ( ImageObject a, ImageObject b ) {
-        double d = dist2(a, b);
+        double d = dist(a, b);
         double x = (a.imgW + b.imgW) / 4.0;
         double y = (a.imgH + b.imgH) / 4.0;
-        double D = Math.pow(x * x + y * y, 0.5);
-        System.out.println(d + " " + D);
+        double D = Math.pow(x * x * x + y * y * y, 0.333333333333333333333333333333333);
         return ( d <= D );
     }
 }
