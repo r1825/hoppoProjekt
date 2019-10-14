@@ -40,7 +40,7 @@ public class Game {
     public static final int SCORE_WIDTH = 256;
     public static final int GAME_WIDTH = WIDTH - SCORE_WIDTH;
 
-    public static int minEnemyNum = 1000;
+    public static int minEnemyNum = 1;
 
     SecureRandom rnd = new SecureRandom();
 
@@ -114,6 +114,13 @@ public class Game {
         testData.setFont(new Font(20));
         testData.setFill(Color.WHITE);
         root.getChildren().add(testData);
+
+        ImageView title = new ImageView(new Image("r1825/syoribu/img/hoppoProjekt.png"));
+        title.setY(HEIGHT-144);
+        title.setX(WIDTH-256);
+        title.setFitWidth(256);
+        title.setFitHeight(144);
+        root.getChildren().add(title);
 
         player = new EntityPlayer(imageSelf, root, 255, 255, new Vector2(0, 0), 3);
 
@@ -422,7 +429,7 @@ public class Game {
             if ( player.tsar_bomba <= 0 ) return;
             player.tsar_bomba--;
             for ( double i = 0; i < 360; i += 1) {
-                Vector2 vec = new Vector2(Math.cos(Math.toRadians(i)) * 3, Math.sin(Math.toRadians(i)) * 3);
+                Vector2 vec = new Vector2(Math.cos(Math.toRadians(i)) * 6, Math.sin(Math.toRadians(i)) * 6);
 
                 EntityTamaBase entityTamaBase = new EntityTamaSelfTsarBomba(imageTamaSelfBullet, root, player.getCentreX(), player.getCentreY(), vec);
                 entityTamaBase.imageView.setRotate(i+90);
