@@ -9,7 +9,7 @@ import r1825.syoribu.entity.tama.EntityTamaEnemyNormal;
 public class EntityEnemyNormal extends EntityEnemyBase {
 
     public EntityEnemyNormal (Image image, Pane pane, double x, double y, Image tama, Vector2 move ) {
-        super(image, pane, x, y, tama, move, 1, 10);
+        super(image, pane, x, y, tama, move, 1, 30);
         time = 0;
     }
 

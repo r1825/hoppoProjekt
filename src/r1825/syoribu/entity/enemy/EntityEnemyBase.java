@@ -5,7 +5,7 @@ import javafx.scene.layout.Pane;
 import r1825.syoribu.Vector2;
 import r1825.syoribu.entity.EntityLiving;
 
-public class EntityEnemyBase extends EntityLiving {
+public class  EntityEnemyBase extends EntityLiving {
 
     protected Image tama;
     protected int time;

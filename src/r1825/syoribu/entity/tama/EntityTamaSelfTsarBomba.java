@@ -58,6 +58,6 @@ public class EntityTamaSelfTsarBomba extends EntityTamaBase {
 
     @Override
     public int getDamage () {
-        return 0x3f3f3f3f;
+        return 0x3f3f;
     }
 }
